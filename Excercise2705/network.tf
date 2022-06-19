@@ -11,7 +11,10 @@ resource "aws_internet_gateway" "samgw" {
     tags                    = {
         Name                = "sam-gw"
     }
-  
+  depends_on = [
+    aws_vpc.ssvpc,
+    aws_subnet.subnets
+  ]
 }
 
 resource "aws_subnet" "subnets" {
@@ -22,6 +25,10 @@ resource "aws_subnet" "subnets" {
     "Name"              = var.tags_name[count.index]
   }
   vpc_id                = aws_vpc.ssvpc.id
+
+  depends_on = [
+    aws_vpc.ssvpc
+  ]
 }
 
 # webserver-sg for accesing through internet
@@ -53,7 +60,10 @@ resource "aws_security_group" "websg" {
   }
   tags                  = {
     Name                = "web_security"
-  } 
+  }
+  depends_on = [
+    aws_vpc.ssvpc
+  ] 
       
 }
 
@@ -86,7 +96,10 @@ resource "aws_security_group" "app" {
   }
   tags                  = {
     Name                = "app_security"
-  } 
+  }
+  depends_on = [
+    aws_vpc.ssvpc
+  ] 
       
 }
 
@@ -119,7 +132,10 @@ resource "aws_security_group" "db" {
   }
   tags                  = {
     Name                = "db_security"
-  } 
+  }
+  depends_on = [
+    aws_vpc.ssvpc
+  ] 
       
 }
 
@@ -133,19 +149,29 @@ resource "aws_route_table" "publicrt" {
     tags                = {
         Name            = "Public RT"
     }
+    depends_on = [
+      aws_internet_gateway.samgw
+    ]
   }
 
 resource "aws_route_table" "privatert" {
     vpc_id              = aws_vpc.ssvpc.id
 
-
     tags                = {
         Name            = "Prviate RT"
-    }        
+    }
+    depends_on = [
+      aws_internet_gateway.samgw
+    ]        
 }
 
 resource "aws_route_table_association" "rtassociations" {
     count               = length(aws_subnet.subnets)
     subnet_id           = aws_subnet.subnets[count.index].id
     route_table_id      = contains(var.public_subnets,lookup(aws_subnet.subnets[count.index].tags_all, "Name", "")) ? aws_route_table.publicrt.id : aws_route_table.privatert.id 
+  depends_on = [
+    aws_route_table.publicrt,
+    aws_route_table.privatert
+  ]
+
 }
