@@ -45,7 +45,7 @@ resource "aws_security_group" "websg" {
   }
 
   egress  {
-    cidr_blocks         = [ var.network_cidr ]
+    cidr_blocks         = [ local.any_where ]
     from_port           = local.all_ports
     to_port             = local.all_ports
     protocol            = local.any_protocol
@@ -78,7 +78,7 @@ resource "aws_security_group" "appdb" {
   }    
 
   egress  {
-    cidr_blocks         = [ var.network_cidr ]
+    cidr_blocks         = [local.any_where]
     from_port           = local.all_ports
     to_port             = local.all_ports
     protocol            = local.any_protocol
