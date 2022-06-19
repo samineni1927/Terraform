@@ -18,3 +18,8 @@ variable "tags_name" {
     default         = [ "web1","web2","app1","app2","db1","db2" ]
 }
 
+# public subnet
+variable "public_subnets" {
+    type            = list(string)
+    default         = [ "web1", "web2" ] 
+}

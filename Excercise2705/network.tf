@@ -57,15 +57,15 @@ resource "aws_security_group" "websg" {
       
 }
 
-# private secuirty group for accesing app and db server
+# private secuirty group for accesing app server
 
-resource "aws_security_group" "appdb" {
+resource "aws_security_group" "app" {
   name                  = "appdb-sg"
-  description           = "sg for app and db" 
+  description           = "sg for app" 
   vpc_id                = aws_vpc.ssvpc.id
   
   ingress {
-    cidr_blocks         = [ var.network_cidr ]
+    cidr_blocks         = [ local.any_where ]
     from_port           = local.ssh_port
     to_port             = local.ssh_port
     protocol            = local.tcp
@@ -90,6 +90,39 @@ resource "aws_security_group" "appdb" {
       
 }
 
+# private secuirty group for accesing db server
+
+resource "aws_security_group" "db" {
+  name                  = "db-sg"
+  description           = "sg for db" 
+  vpc_id                = aws_vpc.ssvpc.id
+  
+  ingress {
+    cidr_blocks         = [ local.any_where ]
+    from_port           = local.ssh_port
+    to_port             = local.ssh_port
+    protocol            = local.tcp
+  }
+  ingress {
+    cidr_blocks         = [ var.network_cidr ]
+    from_port           = local.db_port
+    to_port             = local.db_port
+    protocol            = local.tcp
+  }    
+
+  egress  {
+    cidr_blocks         = [local.any_where]
+    from_port           = local.all_ports
+    to_port             = local.all_ports
+    protocol            = local.any_protocol
+    ipv6_cidr_blocks    = [ local.any_where_ip6 ]
+  }
+  tags                  = {
+    Name                = "db_security"
+  } 
+      
+}
+
 resource "aws_route_table" "publicrt" {
     vpc_id              = aws_vpc.ssvpc.id
 
@@ -109,4 +142,10 @@ resource "aws_route_table" "privatert" {
     tags                = {
         Name            = "Prviate RT"
     }        
+}
+
+resource "aws_route_table_association" "rtassociations" {
+    count               = length(aws_subnet.subnets)
+    subnet_id           = aws_subnet.subnets[count.index].id
+    route_table_id      = contains(var.public_subnets,lookup(aws_subnet.subnets[count.index].tags_all, "Name", "")) ? aws_route_table.publicrt.id : aws_route_table.privatert.id 
 }
