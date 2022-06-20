@@ -175,3 +175,20 @@ resource "aws_route_table_association" "rtassociations" {
   ]
 
 }
+
+resource "aws_db_instance" "rdsdatabase" {
+  db_name               = "dbmysqlfirst"
+  allocated_storage    = "20"  
+  engine                = "mysql"
+  engine_version        = "8.0.28"
+  instance_class        = "db.t3.micro"
+  username              = "admin"
+  password              = "admin456"
+  db_subnet_group_name  = "ssam-db-subnet-group"
+  skip_final_snapshot   = true
+  identifier            = "databaseforsql" 
+
+  depends_on = [
+    aws_db_subnet_group.db_subnetgroup
+  ]
+}

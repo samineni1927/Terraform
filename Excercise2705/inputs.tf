@@ -1,7 +1,7 @@
 # Derfault region in aws provider
 variable "default_region" {
     type            = string
-    default         = "ap-southeast-1"
+    default         = "ap-south-1"
     description     = "default region"
 }
 
@@ -22,4 +22,10 @@ variable "tags_name" {
 variable "public_subnets" {
     type            = list(string)
     default         = [ "web1", "web2" ] 
+}
+
+# DB subnet
+variable "db_subnets" {
+    type            = list(string)
+    default         = [ "db1", "db2" ]
 }
