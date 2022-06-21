@@ -29,3 +29,47 @@ variable "db_subnets" {
     type            = list(string)
     default         = [ "db1", "db2" ]
 }
+
+
+# app server info
+variable "appserver" {
+    type                    = object({
+        count                   = number
+        ami_id                  = string
+        instance_type           = string
+        subnets                 = list(string)
+        name                    = string
+        public_ip_enabled       = bool  
+    })
+
+    default                 = {
+        count                   = 2
+        ami_id                  = "ami-006d3995d3a6b963b"
+        instance_type           = "t2.micro"
+        subnets                 = ["app1","app2"]
+        name                    = "appserver"
+        public_ip_enabled       = false
+    }
+}
+
+
+# web server info
+variable "webserver" {
+    type                    = object({
+        count                   = number
+        ami_id                  = string
+        instance_type           = string
+        subnets                 = list(string)
+        name                    = string
+        public_ip_enabled       = bool  
+    })
+
+    default                 = {
+        count                   = 2
+        ami_id                  = "ami-006d3995d3a6b963b"
+        instance_type           = "t2.micro"
+        subnets                 = ["web1","web2"]
+        name                    = "webserver"
+        public_ip_enabled       = true
+    }
+}
